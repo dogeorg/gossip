@@ -6,13 +6,13 @@ type Tag4CC uint32 // Big-Endian Four Character Code
 
 func (t Tag4CC) String() string {
 	var buf [4]byte
-	binary.LittleEndian.PutUint32(buf[:], uint32(t))
+	binary.BigEndian.PutUint32(buf[:], uint32(t))
 	return string(buf[:])
 }
 
 func (t Tag4CC) Bytes() []byte {
 	var buf [4]byte
-	binary.LittleEndian.PutUint32(buf[:], uint32(t))
+	binary.BigEndian.PutUint32(buf[:], uint32(t))
 	return buf[:]
 }
 
