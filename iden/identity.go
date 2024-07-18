@@ -2,13 +2,13 @@ package iden
 
 import (
 	"rad/gossip/codec"
-	"rad/gossip/spec"
+	"rad/gossip/dnet"
 )
 
-var TagIdentity = spec.NewTag("Iden")
+var TagIdentity = dnet.NewTag("Iden")
 
 type IdentityMsg struct { // 190+1584+104 = 1878
-	Time    spec.DogeTime // [4] Current time when this message is signed (use to detect changes) (Doge Epoch)
+	Time    dnet.DogeTime // [4] Current time when this message is signed (use to detect changes) (Doge Epoch)
 	Name    string        // [30] display name
 	Bio     string        // [120] short biography
 	Lat     int16         // [2] WGS84 +/- 90 degrees, 60 seconds + 6ths (nearest 305m)
@@ -45,7 +45,7 @@ func (msg IdentityMsg) Encode() []byte {
 
 func DecodeIdentityMsg(payload []byte) (msg IdentityMsg) {
 	d := codec.Decode(payload)
-	msg.Time = spec.DogeTime(d.UInt32le())
+	msg.Time = dnet.DogeTime(d.UInt32le())
 	msg.Name = d.VarString()
 	msg.Bio = d.VarString()
 	msg.Lat = int16(d.UInt16le())

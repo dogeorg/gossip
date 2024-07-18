@@ -1,11 +1,11 @@
-package doge
+package node
 
 import (
 	"rad/gossip/codec"
-	"rad/gossip/spec"
+	"rad/gossip/dnet"
 )
 
-var TagReject = spec.NewTag("Rejc")
+var TagReject = dnet.NewTag("Rejc")
 
 type RejectCode uint8
 

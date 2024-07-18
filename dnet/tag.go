@@ -1,4 +1,4 @@
-package spec
+package dnet
 
 import "encoding/binary"
 
