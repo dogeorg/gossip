@@ -1,8 +1,8 @@
 package node
 
 import (
-	"rad/gossip/codec"
-	"rad/gossip/dnet"
+	"code.dogecoin.org/gossip/codec"
+	"code.dogecoin.org/gossip/dnet"
 )
 
 var TagAddress = dnet.NewTag("Addr")
