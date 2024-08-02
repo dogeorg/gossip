@@ -11,9 +11,6 @@ import (
 const MaxMsgSize = 0x1000080 // 16MB (block size is 1MB; 16x=16MB + 128 header 0x80)
 const HeaderSize = 108
 
-type PrivKey = ed25519.PrivateKey // [32]privkey then [32]pubkey
-type PubKey = ed25519.PublicKey   // [32]pubkey
-
 type Message struct { // 108 bytes fixed size header
 	Chan      Tag4CC // [4] Channel Name [big-endian]
 	Tag       Tag4CC // [4] Message Name [big-endian]
@@ -21,10 +18,10 @@ type Message struct { // 108 bytes fixed size header
 	PubKey    []byte // [32]byte
 	Signature []byte // [64]byte
 	Payload   []byte // ... message payload
-	RawHdr    []byte // attached raw header
+	RawMsg    []byte // attached raw message
 }
 
-func EncodeMessage(channel Tag4CC, tag Tag4CC, privkey PrivKey, payload []byte) []byte {
+func EncodeMessage(channel Tag4CC, tag Tag4CC, key KeyPair, payload []byte) []byte {
 	if len(payload) > MaxMsgSize {
 		panic("EncodeMessage: message too large: " + strconv.Itoa(len(payload)))
 	}
@@ -32,8 +29,8 @@ func EncodeMessage(channel Tag4CC, tag Tag4CC, privkey PrivKey, payload []byte) 
 	binary.BigEndian.PutUint32(msg[0:4], uint32(channel))
 	binary.BigEndian.PutUint32(msg[4:8], uint32(tag))
 	binary.LittleEndian.PutUint32(msg[8:12], uint32(len(payload)))
-	copy(msg[12:44], privkey[32:]) // PubKey (32 bytes)
-	copy(msg[44:108], ed25519.Sign(privkey, payload))
+	copy(msg[12:44], key.Pub) // PubKey (32 bytes)
+	copy(msg[44:108], ed25519.Sign(key.Priv, payload))
 	copy(msg[108:], payload)
 	return msg
 }
@@ -44,7 +41,7 @@ func DecodeHeader(buf []byte) (msg Message) {
 	msg.Size = binary.LittleEndian.Uint32(buf[8:12])
 	msg.PubKey = buf[12:44]     // [32]byte
 	msg.Signature = buf[44:108] // [64]byte
-	msg.RawHdr = buf[:]         // for message forwarding
+	msg.RawMsg = buf[:]         // for message forwarding
 	return
 }
 
@@ -73,15 +70,58 @@ func ReadMessage(reader io.Reader) (Message, error) {
 	return msg, nil
 }
 
-func ForwardMessage(conn io.Writer, msg Message) error {
-	// forward the raw message to the peer
-	_, err := conn.Write(msg.RawHdr)
-	if err != nil {
-		return err
+// Message View (zero-copy)
+
+type MessageView interface {
+	Valid() bool
+	ChanTag() (Tag4CC, Tag4CC)
+	Size() uint
+	PubKey() []byte    // 32 bytes
+	Signature() []byte // 64 bytes
+	Payload() []byte
+}
+
+type MessageViewImpl struct {
+	msg []byte
+}
+
+func MsgView(msg []byte) MessageView {
+	return MessageViewImpl{msg: msg}
+}
+
+func (m MessageViewImpl) Valid() bool {
+	if len(m.msg) < HeaderSize {
+		return false
 	}
-	_, err = conn.Write(msg.Payload)
-	if err != nil {
-		return err
+	sz := m.Size()
+	if sz > MaxMsgSize {
+		return false
 	}
-	return nil
+	if len(m.msg) != HeaderSize+int(sz) {
+		return false
+	}
+	if !ed25519.Verify(m.PubKey(), m.msg[HeaderSize:], m.Signature()) {
+		return false
+	}
+	return true
+}
+
+func (m MessageViewImpl) ChanTag() (Tag4CC, Tag4CC) {
+	return Tag4CC(binary.BigEndian.Uint32(m.msg[0:4])), Tag4CC(binary.BigEndian.Uint32(m.msg[4:8]))
+}
+
+func (m MessageViewImpl) Size() uint {
+	return uint(binary.LittleEndian.Uint32(m.msg[8:12]))
+}
+
+func (m MessageViewImpl) PubKey() []byte { // PubKey 32 bytes
+	return m.msg[12:44] // [32]byte
+}
+
+func (m MessageViewImpl) Signature() []byte { // Signature 64 bytes
+	return m.msg[44:108] // [64]byte
+}
+
+func (m MessageViewImpl) Payload() []byte {
+	return m.msg[108:]
 }

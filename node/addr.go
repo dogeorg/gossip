@@ -5,6 +5,7 @@ import (
 	"code.dogecoin.org/gossip/dnet"
 )
 
+var ChannelNode = dnet.NewTag("Node")
 var TagAddress = dnet.NewTag("Addr")
 
 const AddrMsgSize = 56
@@ -51,7 +52,7 @@ func (msg AddressMsg) Encode() []byte {
 	return e.Result()
 }
 
-func DecodeAddrMsg(payload []byte, version int32) (msg AddressMsg) {
+func DecodeAddrMsg(payload []byte) (msg AddressMsg) {
 	d := codec.Decode(payload)
 	msg.Time = dnet.DogeTime(d.UInt32le())
 	msg.Address = d.Bytes(16)

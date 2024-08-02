@@ -2,7 +2,6 @@ package dnet
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 	"errors"
 	"net"
 	"strconv"
@@ -19,16 +18,18 @@ func (a Address) String() string {
 }
 
 func (a Address) IsValid() bool {
-	return a.Port != 0 && len(a.Host) >= 4
+	return a.Port != 0 && len(a.Host) == 16
 }
 
-// NodeID creates a NodeID from a host:port pair.
-func (a Address) NodeID() NodeID {
-	var id NodeID
-	id[0] = NodeIDAddress
-	copy(id[1:17], a.Host)
-	binary.BigEndian.PutUint16(id[17:], a.Port)
-	return id
+func (a Address) ToBytes() []byte {
+	buf := [18]byte{}
+	copy(buf[0:16], a.Host)
+	binary.BigEndian.PutUint16(buf[16:], a.Port)
+	return buf[:]
+}
+
+func (a Address) Equal(other Address) bool {
+	return a.Host.Equal(other.Host) && a.Port == other.Port
 }
 
 func ParseAddress(hostport string) (Address, error) {
@@ -50,14 +51,12 @@ func ParseAddress(hostport string) (Address, error) {
 	return Address{Host: host, Port: uint16(port)}, nil
 }
 
-// NodeID is an Address (for Core Nodes) or 32-byte PubKey (for DogeBox nodes)
-type NodeID [33]byte
-
-const (
-	NodeIDAddress byte = 1
-	NodeIDPubKey  byte = 2
-)
-
-func (id NodeID) String() string {
-	return hex.EncodeToString(id[:])
+func AddressFromBytes(addr []byte) (Address, error) {
+	if len(addr) != 18 {
+		return Address{}, errors.New("wrong address length")
+	}
+	return Address{
+		Host: net.IP(addr[0:16]),
+		Port: binary.BigEndian.Uint16(addr[16:]),
+	}, nil
 }

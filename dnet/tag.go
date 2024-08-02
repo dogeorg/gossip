@@ -21,7 +21,7 @@ func NewTag(tag string) Tag4CC {
 }
 
 // well-known channels
-var ChannelDoge = NewTag("Doge")
+var ChannelNode = NewTag("Node")
 var ChannelIdentity = NewTag("Iden")
 var ChannelChat = NewTag("Chat")
 var ChannelShibeShop = NewTag("Shib")
