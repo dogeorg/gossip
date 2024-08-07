@@ -21,6 +21,7 @@ type Message struct { // 108 bytes fixed size header
 	RawMsg    []byte // attached raw message
 }
 
+// Encode a message by signing the payload.
 func EncodeMessage(channel Tag4CC, tag Tag4CC, key KeyPair, payload []byte) []byte {
 	if len(payload) > MaxMsgSize {
 		panic("EncodeMessage: message too large: " + strconv.Itoa(len(payload)))
@@ -31,6 +32,21 @@ func EncodeMessage(channel Tag4CC, tag Tag4CC, key KeyPair, payload []byte) []by
 	binary.LittleEndian.PutUint32(msg[8:12], uint32(len(payload)))
 	copy(msg[12:44], key.Pub) // PubKey (32 bytes)
 	copy(msg[44:108], ed25519.Sign(key.Priv, payload))
+	copy(msg[108:], payload)
+	return msg
+}
+
+// Re-encode a message given the payload and signature.
+func ReEncodeMessage(channel Tag4CC, tag Tag4CC, pubkey PubKey, sig []byte, payload []byte) []byte {
+	if len(payload) > MaxMsgSize {
+		panic("EncodeMessage: message too large: " + strconv.Itoa(len(payload)))
+	}
+	msg := make([]byte, HeaderSize+len(payload))
+	binary.BigEndian.PutUint32(msg[0:4], uint32(channel))
+	binary.BigEndian.PutUint32(msg[4:8], uint32(tag))
+	binary.LittleEndian.PutUint32(msg[8:12], uint32(len(payload)))
+	copy(msg[12:44], pubkey) // PubKey (32 bytes)
+	copy(msg[44:108], sig)   // ed25519.Sign (64 bytes)
 	copy(msg[108:], payload)
 	return msg
 }

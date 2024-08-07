@@ -9,8 +9,8 @@ type PrivKey = ed25519.PrivateKey // [32]privkey then [32]pubkey
 type PubKey = ed25519.PublicKey   // [32]pubkey
 
 type KeyPair struct {
-	Priv ed25519.PrivateKey
-	Pub  ed25519.PublicKey
+	Priv PrivKey
+	Pub  PubKey
 }
 
 // Make a KeyPair from 32-byte Entropy Seed.

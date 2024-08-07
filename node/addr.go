@@ -8,7 +8,7 @@ import (
 var ChannelNode = dnet.NewTag("Node")
 var TagAddress = dnet.NewTag("Addr")
 
-const AddrMsgSize = 56
+const AddrMsgMinSize = 56
 
 type AddressMsg struct { // 56 + 4c + 6s
 	Time    dnet.DogeTime // [4] Current Doge Epoch time when this message is signed
@@ -34,7 +34,7 @@ func (msg AddressMsg) Encode() []byte {
 	if len(msg.Owner) != 32 {
 		panic("Invalid Owner: must be 32 bytes")
 	}
-	e := codec.Encode(AddrMsgSize)
+	e := codec.Encode(AddrMsgMinSize)
 	e.UInt32le(uint32(msg.Time))
 	e.Bytes(msg.Address)
 	e.UInt16be(msg.Port)
