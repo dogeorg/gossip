@@ -18,7 +18,7 @@ type Message struct { // 108 bytes fixed size header
 	PubKey    []byte // [32]byte
 	Signature []byte // [64]byte
 	Payload   []byte // ... message payload
-	RawMsg    []byte // attached raw message
+	RawHdr    []byte // attached raw header
 }
 
 // Encode a message by signing the payload.
@@ -57,7 +57,7 @@ func DecodeHeader(buf []byte) (msg Message) {
 	msg.Size = binary.LittleEndian.Uint32(buf[8:12])
 	msg.PubKey = buf[12:44]     // [32]byte
 	msg.Signature = buf[44:108] // [64]byte
-	msg.RawMsg = buf[:]         // for message forwarding
+	msg.RawHdr = buf[0:108]     // for message forwarding
 	return
 }
 
