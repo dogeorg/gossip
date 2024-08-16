@@ -94,6 +94,7 @@ type MessageView interface {
 	Size() uint
 	PubKey() []byte    // 32 bytes
 	Signature() []byte // 64 bytes
+	Header() []byte
 	Payload() []byte
 }
 
@@ -136,6 +137,10 @@ func (m MessageViewImpl) PubKey() []byte { // PubKey 32 bytes
 
 func (m MessageViewImpl) Signature() []byte { // Signature 64 bytes
 	return m.msg[44:108] // [64]byte
+}
+
+func (m MessageViewImpl) Header() []byte {
+	return m.msg[0:108]
 }
 
 func (m MessageViewImpl) Payload() []byte {
