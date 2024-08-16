@@ -18,7 +18,7 @@ func (a Address) String() string {
 }
 
 func (a Address) IsValid() bool {
-	return a.Port != 0 && len(a.Host) == 16
+	return a.Port != 0 && (len(a.Host) == 16 || len(a.Host) == 4)
 }
 
 func (a Address) ToBytes() []byte {
