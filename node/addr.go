@@ -31,6 +31,9 @@ func (msg AddressMsg) Encode() []byte {
 	if len(msg.Services) > 8192 {
 		panic("Invalid AddrMsg: more than 8192 services")
 	}
+	if len(msg.Address) != 16 {
+		panic("Invalid Address: must be 16 bytes")
+	}
 	if len(msg.Owner) != 32 {
 		panic("Invalid Owner: must be 32 bytes")
 	}
