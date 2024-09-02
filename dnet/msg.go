@@ -146,3 +146,22 @@ func (m MessageViewImpl) Header() []byte {
 func (m MessageViewImpl) Payload() []byte {
 	return m.msg[108:]
 }
+
+// RawMessage is a pre-formed message ready for sending.
+
+type RawMessage struct {
+	Header  []byte // encoded header
+	Payload []byte // encoded payload
+}
+
+func (m RawMessage) Send(to io.Writer) error {
+	_, err := to.Write(m.Header)
+	if err != nil {
+		return err
+	}
+	_, err = to.Write(m.Payload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
