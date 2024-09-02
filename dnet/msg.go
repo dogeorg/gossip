@@ -36,8 +36,28 @@ func EncodeMessage(channel Tag4CC, tag Tag4CC, key KeyPair, payload []byte) []by
 	return msg
 }
 
+// Encode a message by signing the payload.
+func EncodeMessageRaw(channel Tag4CC, tag Tag4CC, key KeyPair, payload []byte) RawMessage {
+	hdr := EncodeHeaderAndSign(channel, tag, key, payload)
+	return RawMessage{Header: hdr, Payload: payload}
+}
+
+// Encode a message header by signing the payload.
+func EncodeHeaderAndSign(channel Tag4CC, tag Tag4CC, key KeyPair, payload []byte) []byte {
+	if len(payload) > MaxMsgSize {
+		panic("EncodeMessage: message too large: " + strconv.Itoa(len(payload)))
+	}
+	hdr := make([]byte, HeaderSize)
+	binary.BigEndian.PutUint32(hdr[0:4], uint32(channel))
+	binary.BigEndian.PutUint32(hdr[4:8], uint32(tag))
+	binary.LittleEndian.PutUint32(hdr[8:12], uint32(len(payload)))
+	copy(hdr[12:44], key.Pub) // PubKey (32 bytes)
+	copy(hdr[44:108], ed25519.Sign(key.Priv, payload))
+	return hdr
+}
+
 // Encode a message header using an existing signature.
-func EncodeHeader(channel Tag4CC, tag Tag4CC, pubkey PubKey, sig []byte, payload []byte) []byte {
+func ReEncodeHeader(channel Tag4CC, tag Tag4CC, pubkey PubKey, sig []byte, payload []byte) []byte {
 	if len(payload) > MaxMsgSize {
 		panic("EncodeMessage: message too large: " + strconv.Itoa(len(payload)))
 	}
@@ -167,6 +187,6 @@ func (m RawMessage) Send(to io.Writer) error {
 
 // Re-encode a message given the payload and signature.
 func ReEncodeMessage(channel Tag4CC, tag Tag4CC, pubkey PubKey, sig []byte, payload []byte) RawMessage {
-	hdr := EncodeHeader(channel, tag, pubkey, sig, payload)
+	hdr := ReEncodeHeader(channel, tag, pubkey, sig, payload)
 	return RawMessage{Header: hdr, Payload: payload}
 }
