@@ -14,7 +14,7 @@ type AddressMsg struct { // 56 + 4c + 6s
 	Time    dnet.DogeTime // [4] Current Doge Epoch time when this message is signed
 	Address []byte        // [16] network byte order (Big-Endian); IPv4-mapped IPv6 address
 	Port    uint16        // [2] network byte order (Big-Endian)
-	Owner   []byte        // [32] identity pubkey (zeroes if not present)
+	Owner   []byte        // [32] public key of identity claimed by this node (zeroes if not present)
 	// [1] number of channels
 	Channels []dnet.Tag4CC // [4] per service (Chan)
 	// [1] number of services
