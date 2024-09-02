@@ -119,11 +119,11 @@ var topoMap [2][4][4]uint = [2][4][4]uint{
 Compress a 48x48 sRGB-8 source image to 1584-byte Y'CbCr 4:2:0 `DogeIcon` (23% original size)
 
 Encoded as 24x24 2x2 tiles with a 2-bit tile-topology; each tile encodes Y1 Y2 Cb Cr:
-Y=6bit Cb=4bit Cr=4bit (scaled full-range; no "headroom"; using BT.709)
+Y=5bit Cb=5bit Cr=5bit (scaled full-range; no "headroom"; using BT.709)
 
-plane0 Y1Y2 (24*24*6*2/8=864) || plane1 CbCr (24*24*4*2/8=576) || plane2 topology (24*24*2/8=144) = 1584 (1.55K)
+plane0 Y1Y2 (24*24*5*2/8=720) || plane1 CbCr (24*24*5*2/8=720) || plane2 topology (24*24*2/8=144) = 1584 (1.55K)
 
-	0 = 0/  1 = \1  2 = 00  3 = 02   2 Y-samples per tile (6-bit samples packed into 12-bit plane)
+	0 = 0/  1 = \1  2 = 00  3 = 02   2 Y-samples per tile (5-bit samples packed into 10-bit plane)
 	    /3      2\      22      02   2-bit topology as per diagram (0=/ 1=\ 2=H 3=V)
 
 Bytes are filled with bits left to right (left=MSB right=LSB)
