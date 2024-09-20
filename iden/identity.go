@@ -22,7 +22,20 @@ type IdentityMsg struct { // 190+1584+104 = 1878
 	Icon    []byte        // [2][1584] 48x48 compressed (see dogeicon.go)
 }
 
-func (msg IdentityMsg) Encode() []byte {
+func (msg *IdentityMsg) IsValid() bool {
+	for _, pub := range msg.Nodes {
+		if len(pub) != 32 {
+			return false
+		}
+	}
+	return (len(msg.Name) <= 30 &&
+		len(msg.Bio) <= 120 &&
+		(len(msg.Country) == 2 || len(msg.Country) == 0) &&
+		len(msg.City) <= 30 &&
+		len(msg.Icon) == 1584)
+}
+
+func (msg *IdentityMsg) Encode() []byte {
 	if len(msg.Name) > 30 {
 		panic("Invalid identity: name longer than 30")
 	}
