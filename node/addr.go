@@ -27,6 +27,10 @@ type Service struct {
 	Data string      // [1+] Service Data (optional)
 }
 
+func (msg AddressMsg) IsValid() bool {
+	return len(msg.Services) <= 8192 && len(msg.Address) == 16 && len(msg.Owner) == 32
+}
+
 func (msg AddressMsg) Encode() []byte {
 	if len(msg.Services) > 8192 {
 		panic("Invalid AddrMsg: more than 8192 services")
