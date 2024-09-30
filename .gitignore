@@ -1,4 +1,4 @@
 .DS_Store
-lib/node_modules
-lib/*.map
+dogeicon/node_modules
+dogeicon/*.map
 
