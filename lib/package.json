@@ -5,7 +5,7 @@
   "main": "dogeicon.js",
   "scripts": {
     "test": "",
-    "build": "rollup -c"
+    "build": "rollup -c rollup.compress.js && rollup -c rollup.uncompress.js"
   },
   "repository": {
     "type": "git",

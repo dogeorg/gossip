@@ -4,8 +4,8 @@ This directory contains a small icon compression library for use in the browser.
 
 ## Building
 
-The build product is `dogeicon.js` which is built from `dogeicon.ts`.
-Run `npm run build` to rebuild the javascript module.
+The build products are in `dist` and sources in `src`.
+Run `npm run build` to rebuild the `dist` javascript modules.
 
 Building requires Node.js and npm.
 There are no runtime dependencies.
@@ -43,4 +43,4 @@ Options is a bit-field:
 There is an example application in the `web_test` directory.
 Run an http server in this directory and access `http://localhost:8000/web_test/upload.html`
 
-Note that the upload script imports `../dogeicon.js` from this directory.
+Note that the upload script imports `../dist/dogeicon.js` from this directory.
