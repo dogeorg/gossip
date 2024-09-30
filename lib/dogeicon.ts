@@ -43,7 +43,7 @@ export function compress(rgb: Uint8Array, components: number, options: number): 
 		const style = options & 1
 		const comp = compress1(rgb, style, components, options)
 		const res = uncompress(comp)
-		console.log(`MODE ${style}`)
+		//console.log(`MODE ${style}`)
 		return {comp, res}
 	}
 	// try both and use the least-difference version
@@ -52,10 +52,10 @@ export function compress(rgb: Uint8Array, components: number, options: number): 
 	const resFlat = uncompress(compFlat)
 	const resLinear = uncompress(compLinear)
 	if (sad(rgb, resFlat) < sad(rgb, resLinear)) {
-		console.log("MODE 0")
+		//console.log("MODE 0")
 		return {comp:compFlat, res:resFlat}
 	}
-	console.log("MODE 1")
+	//console.log("MODE 1")
 	return {comp:compLinear, res:resLinear}
 }
 
