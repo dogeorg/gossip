@@ -1,0 +1,24 @@
+{
+  "name": "dogeicon",
+  "version": "1.0.0",
+  "description": "DogeIcon Compression Library",
+  "main": "dogeicon.js",
+  "scripts": {
+    "test": "",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dogeorg/gossip.git"
+  },
+  "author": "Dogecoin Foundation",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dogeorg/gossip/issues"
+  },
+  "homepage": "https://github.com/dogeorg/gossip#readme",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.0",
+    "rollup": "^4.22.5"
+  }
+}
