@@ -16,16 +16,14 @@
     var dpi = window.devicePixelRatio || 1;
 
     var size = 48;
-    var border = 0;
     var scale = 4;
     var blend = 24; // 24=weighted 16=horizontal 8=average 0=top-left
     var mode = 1; // 1=linear 0=pixellated -1=auto
     drawmode();
 
-    var total = size + (border * 2);
-    c.width = total;
-    c.height = total;
-    var viewsize = total * scale;
+    c.width = size;
+    c.height = size;
+    var viewsize = size * scale;
     c.style.width = viewsize + 'px';
     c.style.height = viewsize + 'px';
     c.style.imageRendering = 'pixelated';
@@ -51,10 +49,10 @@
     var url = "";
     var pic = null;
     var zoom = 1;
-    var ox = 0;
-    var oy = 0;
-    var sx = 0;
-    var sy = 0;
+    var w = 0;
+    var h = 0;
+    var x = 0;
+    var y = 0;
     var tx = 0;
     var ty = 0;
     var drag = false;
@@ -71,12 +69,10 @@
                 pic = img;
                 //zoom = Math.min(size/img.width, size/img.height); // contain
                 zoom = Math.max(size/img.width, size/img.height); // cover
-                //zoom = zoom * 2;
-                var w = pic.width * zoom, h = pic.height * zoom;
-                ox = (size - w)/2; // centre
-                oy = (size - h)/2;
-                sx = w; // save for dragging
-                sy = h;
+                w = pic.width * zoom;
+                h = pic.height * zoom;
+                x = (size - w)/2; // centre
+                y = (size - h)/2;
                 console.log("zoom",zoom);
                 redraw();
                 compress();
@@ -85,47 +81,49 @@
         }
     });
 
+    function clamp() {
+        w = pic.width * zoom;
+        h = pic.height * zoom;
+        if (w <= size) {
+            x = (size - w)/2; // centre
+        } else {
+            // x is usually negative (off the left edge)
+            if (x < size - w) x = size - w; // stop at right (-x)
+            else if (x > 0) x = 0; // stop at left (+x)
+        }
+        if (h <= size) {
+            y = (size - h)/2; // centre
+        } else {
+            // y is usually negative (off the top edge)
+            if (y < size - h) y = size - h; // stop at bottom (-y)
+            if (y > 0) y = 0; // stop at top (+y)
+        }
+    }
+
     function redraw() {
         g.fillStyle = "#fff";
-        g.fillRect(0, 0, total, total);
+        g.fillRect(0, 0, size, size);
         if (pic) {
-            var w = pic.width * zoom, h = pic.height * zoom; // doc size
-            sx = w; // save for dragging
-            sy = h;
-            var x = ox, y = oy;
-            if (w <= size) {
-                x = (total - w)/2; // centre
-            } else {
-                if (x < (size+border) - w) x = (size+border) - w; // stop at right (-x)
-                else if (x > border) x = border; // stop at left (+x)
-            }
-            if (h <= size) {
-                y = (total - h)/2; // centre
-            } else {
-                if (y < (size+border) - h) y = (size+border) - h; // stop at bottom (-y)
-                if (y > border) y = border; // stop at top (+y)
-            }
-            ox = x;
-            oy = y;
+            clamp();
             console.log("draw", x, y, w, h);
             // g.imageSmoothingDisabled = true;
             g.drawImage(pic, x, y, w, h); // compressed zoom
-            dg.drawImage(pic, x-border, y-border, w, h); // compressed actual size
-            og.drawImage(pic, x-border, y-border, w, h); // original
+            dg.drawImage(pic, x, y, w, h); // compressed actual size
+            og.drawImage(pic, x, y, w, h); // original
         }
         g.fillStyle = "rgba(0,0,0,0.6)";
-        g.fillRect(0, 0, total, border);
-        g.fillRect(0, total - border, total, border);
-        g.fillRect(0, border, border, size);
-        g.fillRect(total - border, border, border, size);
+        g.fillRect(0, 0, size, 0);
+        g.fillRect(0, size, size, 0);
+        g.fillRect(0, 0, 0, size);
+        g.fillRect(size, 0, 0, size);
     }
 
     c.addEventListener('mousedown', function(ev) {
         ev.preventDefault();
         // screen to doc space
-        // var r = c.getBoundingClientRect();
-        tx = ev.clientX - ox;
-        ty = ev.clientY - ox;
+        tx = (ev.clientX * zoom * scale) - x;
+        ty = (ev.clientY * zoom * scale) - y;
+        console.log(zoom)
         drag = true;
     });
 
@@ -133,10 +131,10 @@
         ev.preventDefault();
         if (!drag) return;
         // screen to doc space
-        ox += (ev.clientX - tx) * zoom;
-        oy += (ev.clientY - ty) * zoom;
-        redraw();
-        compress();
+        x = (ev.clientX * zoom * scale) - tx;
+        y = (ev.clientY * zoom * scale) - ty;
+        clamp();
+        window.requestAnimationFrame(compress);
     });
 
     c.addEventListener('mouseup', function(ev) {
@@ -162,9 +160,9 @@
     }
 
     window.addEventListener('keydown', function(ev) {
-        if (ev.key == "+" || ev.key == "=") { zoom = zoom * 1.25; redraw(); }
-        if (ev.key == "-" || ev.key == "_") { zoom = zoom * 0.8; redraw(); }
-        if (ev.key == "r") redraw();
+        if (ev.key == "+" || ev.key == "=") { zoom = zoom * 1.25; clamp(); compress(); }
+        if (ev.key == "-" || ev.key == "_") { zoom = zoom * 0.8; clamp(); compress(); }
+        if (ev.key == "r") compress();
         if (ev.key == "c") { blend=24; mode=1; drawmode(); compress(); } // weighted average
         if (ev.key == "1") { blend=0; drawmode(); compress(); }  // top-left chroma sample
         if (ev.key == "2") { blend=8; drawmode(); compress(); } // average 4 chroma
@@ -173,6 +171,10 @@
         if (ev.key == "l") { mode = 1; drawmode(); compress(); } // linear
         if (ev.key == "p") { mode = 0; drawmode(); compress(); } // pixellated
         if (ev.key == "o") { mode = -1; drawmode(); compress(); } // auto (min.sad)
+        if (ev.key == "ArrowUp") { y -= 1; clamp(); compress(); }
+        if (ev.key == "ArrowDown") { y += 1; clamp(); compress(); }
+        if (ev.key == "ArrowLeft") { x -= 1; clamp(); compress(); }
+        if (ev.key == "ArrowRight") { x += 1; clamp(); compress(); }
     });
 
     cm.addEventListener('click', function(ev) {
@@ -181,6 +183,7 @@
 
     async function compress() {
         if (!pic) return;
+        redraw(); // source for getImageData
         var opt = blend;
         if (mode >= 0) opt |= 4 + mode;
         var snap = og.getImageData(0, 0, 48, 48); // RGBA
@@ -198,7 +201,7 @@
             to[p+3] = 255;
             p += 4;
         }
-        g.putImageData(snap, border, border); // compressed zoomed
+        g.putImageData(snap, 0, 0); // compressed zoomed
         dg.putImageData(snap, 0, 0); // compressed actual
         dlg.putImageData(snap, 0, 0); // compressed (left side)
     }
