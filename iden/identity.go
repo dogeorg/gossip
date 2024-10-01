@@ -5,12 +5,9 @@ import (
 	"code.dogecoin.org/gossip/dnet"
 )
 
-const IdenMsgMinSize = 4 + 1 + 1 + 2 + 2 + 2 + 1 + 1 + 2
-const IconMaxSize = 1588 // 1584 + type
-
 var TagIdentity = dnet.NewTag("Iden")
 
-type IdentityMsg struct { // 190+1584+104 = 1878
+type IdentityMsg struct { // up to 1828 bytes
 	Time    dnet.DogeTime // [4] Current time when this message is signed (use to detect changes) (Doge Epoch)
 	Name    string        // [1][30] display name
 	Bio     string        // [1][120] short biography
@@ -19,8 +16,13 @@ type IdentityMsg struct { // 190+1584+104 = 1878
 	Country string        // [2] ISO 3166-1 alpha-2 code (optional)
 	City    string        // [1][30] city name (optional)
 	Nodes   [][]byte      // [1][32]xN public keys of nodes claimed by this identity
-	Icon    []byte        // [2][1584] 48x48 compressed (see dogeicon.go)
+	Icon    []byte        // [2][1585] 48x48 compressed (see dogeicon.go)
+	// future versions of the format can add new fields to the end (only!)
 }
+
+const IconMaxSize = 1600 // at least 1585
+const IdenMsgMinSize = 4 + 1 + 1 + 2 + 2 + 2 + 1 + 1 + 2
+const IdenMsgAlloc = IdenMsgMinSize + 30 + 120 + 30 + 32 + IconMaxSize
 
 func (msg *IdentityMsg) IsValid() bool {
 	for _, pub := range msg.Nodes {
@@ -32,7 +34,7 @@ func (msg *IdentityMsg) IsValid() bool {
 		len(msg.Bio) <= 120 &&
 		(len(msg.Country) == 2 || len(msg.Country) == 0) &&
 		len(msg.City) <= 30 &&
-		len(msg.Icon) == 1584)
+		len(msg.Icon) <= IconMaxSize)
 }
 
 func (msg *IdentityMsg) Encode() []byte {
@@ -45,10 +47,10 @@ func (msg *IdentityMsg) Encode() []byte {
 	if len(msg.City) > 30 {
 		panic("Invalid identity: city longer than 30")
 	}
-	if len(msg.Icon) != 1584 {
-		panic("Invalid identity: icon size not 1584")
+	if len(msg.Icon) > IconMaxSize {
+		panic("Invalid identity: icon too large")
 	}
-	e := codec.Encode(10 + 31 + 121 + 31 + 1584)
+	e := codec.Encode(IdenMsgAlloc)
 	e.UInt32le(uint32(msg.Time))
 	e.VarString(msg.Name)
 	e.VarString(msg.Bio)
@@ -62,9 +64,6 @@ func (msg *IdentityMsg) Encode() []byte {
 			panic("Invalid public key: must be 32 bytes")
 		}
 		e.Bytes(pub)
-	}
-	if len(msg.Icon) > IconMaxSize {
-		panic("icon too large")
 	}
 	e.UInt16le(uint16(len(msg.Icon)))
 	e.Bytes(msg.Icon)
@@ -89,5 +88,7 @@ func DecodeIdentityMsg(payload []byte) (msg IdentityMsg) {
 		panic("icon too large")
 	}
 	msg.Icon = d.Bytes(int(icsize))
+	// future versions of the format can add new fields
+	// to the end of the format; check d.Has(n) bytes.
 	return
 }
