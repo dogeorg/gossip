@@ -99,21 +99,25 @@ var DogeIcon = (function (exports) {
                             Ybr = Yb; // 3
                             Ytr = unY((Y0 + Y1) >> 1);
                             Ybl = Ytr;
+                            break;
                         case 1: // '\' diagonal
                             Ytr = Ya; // 1
                             Ybl = Yb; // 2
                             Ytl = unY((Y0 + Y1) >> 1);
                             Ybr = Ytl;
+                            break;
                         case 2: // '-' horizontal
                             Ytl = Ya; // 0
                             Ytr = Ytl;
                             Ybl = Yb; // 2
                             Ybr = Ybl;
+                            break;
                         case 3: // '|' vertical
                             Ytl = Ya; // 0
                             Ybl = Ytl;
                             Ytr = Yb; // 1
                             Ybr = Ytr;
+                            break;
                     }
                 }
                 else {
@@ -124,21 +128,25 @@ var DogeIcon = (function (exports) {
                             Ytr = Ya;
                             Ybl = Ya; // 0 3
                             Ybr = Yb;
+                            break;
                         case 1: // '\' diagonal
                             Ytl = Yb; // 2 1
                             Ytr = Ya;
                             Ybl = Yb; // 2 2
                             Ybr = Yb;
+                            break;
                         case 2: // '-' horizontal
                             Ytl = Ya; // 0 0
                             Ytr = Ya;
                             Ybl = Yb; // 2 2
                             Ybr = Yb;
+                            break;
                         case 3: // '|' vertical
                             Ytl = Ya; // 0 1
                             Ytr = Yb;
                             Ybl = Ya; // 0 1
                             Ybr = Yb;
+                            break;
                     }
                 }
                 // 3. generate pixels
@@ -370,15 +378,19 @@ var DogeIcon = (function (exports) {
                     case 0:
                         Y0bits = Ys[topMap[0][0]];
                         Y1bits = Ys[topMap[0][3]];
+                        break;
                     case 1:
                         Y0bits = Ys[topMap[1][1]];
                         Y1bits = Ys[topMap[1][2]];
+                        break;
                     case 2:
                         Y0bits = Ys[topMap[2][0]];
                         Y1bits = Ys[topMap[2][2]];
+                        break;
                     case 3:
                         Y0bits = Ys[topMap[3][0]];
                         Y1bits = Ys[topMap[3][1]];
+                        break;
                 }
                 // 4. encode compressed values (22 bits)
                 Yacc |= ((Y0bits << 17) | (Y1bits << 12) | (CbQ << 7) | (CrQ << 2) | topology) << Ybit;
@@ -457,6 +469,7 @@ var DogeIcon = (function (exports) {
     }
 
     exports.compress = compress;
+    exports.uncompress = uncompress;
 
     return exports;
 

@@ -219,15 +219,19 @@ export function compress1(rgb: Uint8Array, style, components, options: number): 
 			case 0:
 				Y0bits = Ys[topMap[0][0]]
 				Y1bits = Ys[topMap[0][3]]
+				break;
 			case 1:
 				Y0bits = Ys[topMap[1][1]]
 				Y1bits = Ys[topMap[1][2]]
+				break;
 			case 2:
 				Y0bits = Ys[topMap[2][0]]
 				Y1bits = Ys[topMap[2][2]]
+				break;
 			case 3:
 				Y0bits = Ys[topMap[3][0]]
 				Y1bits = Ys[topMap[3][1]]
+				break;
 			}
 			// 4. encode compressed values (22 bits)
 			Yacc |= ((Y0bits<<17)|(Y1bits<<12)|(CbQ<<7)|(CrQ<<2)|topology) << Ybit

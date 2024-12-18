@@ -74,21 +74,25 @@ var DogeIcon = (function (exports) {
                             Ybr = Yb; // 3
                             Ytr = unY((Y0 + Y1) >> 1);
                             Ybl = Ytr;
+                            break;
                         case 1: // '\' diagonal
                             Ytr = Ya; // 1
                             Ybl = Yb; // 2
                             Ytl = unY((Y0 + Y1) >> 1);
                             Ybr = Ytl;
+                            break;
                         case 2: // '-' horizontal
                             Ytl = Ya; // 0
                             Ytr = Ytl;
                             Ybl = Yb; // 2
                             Ybr = Ybl;
+                            break;
                         case 3: // '|' vertical
                             Ytl = Ya; // 0
                             Ybl = Ytl;
                             Ytr = Yb; // 1
                             Ybr = Ytr;
+                            break;
                     }
                 }
                 else {
@@ -99,21 +103,25 @@ var DogeIcon = (function (exports) {
                             Ytr = Ya;
                             Ybl = Ya; // 0 3
                             Ybr = Yb;
+                            break;
                         case 1: // '\' diagonal
                             Ytl = Yb; // 2 1
                             Ytr = Ya;
                             Ybl = Yb; // 2 2
                             Ybr = Yb;
+                            break;
                         case 2: // '-' horizontal
                             Ytl = Ya; // 0 0
                             Ytr = Ya;
                             Ybl = Yb; // 2 2
                             Ybr = Yb;
+                            break;
                         case 3: // '|' vertical
                             Ytl = Ya; // 0 1
                             Ytr = Yb;
                             Ybl = Ya; // 0 1
                             Ybr = Yb;
+                            break;
                     }
                 }
                 // 3. generate pixels

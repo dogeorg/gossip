@@ -2,6 +2,9 @@ import { uncompress } from "./uncompress"
 import { compress1 } from "./compress"
 import { diff, Kb, Kg, Kr } from "./constants"
 
+// re-export 'uncompress' for clients of dist/dogeicon.js
+export { uncompress } from "./uncompress"
+
 /*
 Compress a 48x48 sRGB-8 source image to 1584-byte Y'CbCr 4:2:0 `DogeIcon` (23% original size)
 
