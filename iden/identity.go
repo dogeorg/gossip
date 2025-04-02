@@ -70,7 +70,7 @@ func (msg *IdentityMsg) Encode() []byte {
 	return e.Result()
 }
 
-func DecodeIdentityMsg(payload []byte) (msg IdentityMsg) {
+func DecodeIdentityMsg(payload []byte) (msg IdentityMsg, valid bool) {
 	d := codec.Decode(payload)
 	msg.Time = dnet.DogeTime(d.UInt32le())
 	msg.Name = d.VarString()
@@ -85,10 +85,10 @@ func DecodeIdentityMsg(payload []byte) (msg IdentityMsg) {
 	}
 	icsize := d.UInt16le()
 	if icsize > IconMaxSize {
-		panic("icon too large")
+		return msg, false
 	}
 	msg.Icon = d.Bytes(int(icsize))
 	// future versions of the format can add new fields
 	// to the end of the format; check d.Has(n) bytes.
-	return
+	return msg, d.Complete()
 }

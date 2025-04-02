@@ -59,7 +59,7 @@ func (msg AddressMsg) Encode() []byte {
 	return e.Result()
 }
 
-func DecodeAddrMsg(payload []byte) (msg AddressMsg) {
+func DecodeAddrMsg(payload []byte) (msg AddressMsg, valid bool) {
 	d := codec.Decode(payload)
 	msg.Time = dnet.DogeTime(d.UInt32le())
 	msg.Address = d.Bytes(16)
@@ -68,7 +68,7 @@ func DecodeAddrMsg(payload []byte) (msg AddressMsg) {
 	// decode channels
 	nchannel := d.VarUInt()
 	if nchannel > 8192 {
-		panic("Invalid AddrMsg: more than 8192 services")
+		return msg, false
 	}
 	msg.Channels = make([]dnet.Tag4CC, nchannel)
 	for n := 0; n < int(nchannel); n++ {
@@ -77,7 +77,7 @@ func DecodeAddrMsg(payload []byte) (msg AddressMsg) {
 	// decode services
 	nservice := d.VarUInt()
 	if nservice > 8192 {
-		panic("Invalid AddrMsg: more than 8192 services")
+		return msg, false
 	}
 	msg.Services = make([]Service, nservice)
 	for n := 0; n < int(nservice); n++ {
@@ -85,5 +85,5 @@ func DecodeAddrMsg(payload []byte) (msg AddressMsg) {
 		msg.Services[n].Port = d.UInt16be()
 		msg.Services[n].Data = d.VarString()
 	}
-	return
+	return msg, d.Complete()
 }

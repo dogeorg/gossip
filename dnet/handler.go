@@ -18,7 +18,7 @@ func (msg BindMessage) Encode() []byte {
 	return buf
 }
 
-func DecodeBindMessage(payload []byte) (msg BindMessage, ok bool) {
+func DecodeBindMessage(payload []byte) (msg BindMessage, valid bool) {
 	if len(payload) == BindMessageSize {
 		msg.Version = binary.LittleEndian.Uint32(payload[0:4])
 		msg.Chan = Tag4CC(binary.BigEndian.Uint32(payload[4:8]))
