@@ -1,4 +1,4 @@
-module code.dogecoin.org/gossip
+module github.com/Dogebox-WG/gossip
 
 go 1.18
 

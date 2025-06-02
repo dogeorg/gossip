@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"code.dogecoin.org/gossip/codec"
+	"github.com/Dogebox-WG/gossip/codec"
 )
 
 func TestStreamBytes(t *testing.T) {
