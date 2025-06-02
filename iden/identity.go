@@ -1,8 +1,8 @@
 package iden
 
 import (
-	"code.dogecoin.org/gossip/codec"
-	"code.dogecoin.org/gossip/dnet"
+	"github.com/Dogebox-WG/gossip/codec"
+	"github.com/Dogebox-WG/gossip/dnet"
 )
 
 var TagIdentity = dnet.NewTag("Iden")
